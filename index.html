@@ -7,7 +7,7 @@
     <!-- นำเข้า Font สวยๆ จาก Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Itim&family=Prompt:wght@300;400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Itim&family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
     
     <style>
         * {
@@ -23,7 +23,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            overflow-x: hidden; /* ป้องกันไม่ให้แถบเลื่อนแนวนอนโผล่ตอนน้องแกะเดินมานอกจอค่ะ */
+            overflow-x: hidden;
         }
 
         .container {
@@ -40,37 +40,52 @@
             justify-content: center;
         }
 
-        /* จัดแต่งการขยับและแอนิเมชันให้เจ้าแกะเดิน */
         .logo-area img {
             width: 70px;
             height: auto;
             opacity: 0.7;
             position: relative;
-            animation: sheepWalk 1.5s ease-out forwards; /* น้องแกะใช้เวลาเดินเข้าฉาก 1.5 วินาทีค่ะ */
+            animation: sheepWalk 1.5s ease-out forwards;
         }
 
-        /* กำหนดทิศทางการเดินของน้องแกะจากขวามาตรงกลาง */
         @keyframes sheepWalk {
             0% {
-                transform: translateX(100vw); /* เริ่มต้นอยู่นอกจอด้านขวาสุด */
+                transform: translateX(100vw);
                 opacity: 0;
             }
             70% {
                 opacity: 0.7;
             }
             100% {
-                transform: translateX(0); /* เดินมาหยุดตรงจุด Center ปัจจุบันเป๊ะๆ */
+                transform: translateX(0);
                 opacity: 0.7;
             }
         }
 
-        /* ชื่อระบบใหม่แบบตรงสวยงาม ไม่เอียง ขนาด 3/4 ตามสั่งค๊า */
-        .title {
+        /* กลุ่มหัวข้อแบบ 2 บรรทัดตรงสวยงาม */
+        .title-group {
+            margin-bottom: 50px;
+            display: block;
+        }
+
+        /* บรรทัดบน: Staff Pass Status */
+        .title-main {
             font-family: 'Itim', cursive;
             font-size: 2.6rem;
             color: #63666a;
-            margin-bottom: 60px;
-            display: inline-block;
+            line-height: 1.2;
+            display: block;
+            letter-spacing: 1px;
+        }
+
+        /* บรรทัดล่าง: Training Database */
+        .title-sub {
+            font-family: 'Itim', cursive;
+            font-size: 1.8rem; /* ปรับให้ย่อมลงมากว่าบรรทัดบนเล็กน้อยเพื่อความบาลานซ์ค่ะ */
+            color: #8a8d91; /* ใช้สีเทาที่นุ่มลงมานิดนึงเพื่อให้มิติดูสวยงามค่ะ */
+            line-height: 1.2;
+            margin-top: 5px;
+            display: block;
             letter-spacing: 1px;
         }
 
@@ -113,8 +128,11 @@
             <img src="แกะโลโก้.png" alt="Logo">
         </div>
 
-        <!-- ชื่อระบบใหม่สุดเท่และเข้าท่าของคุณพี่ค่ะ -->
-        <h1 class="title">Staff Pass Status</h1>
+        <!-- แก้ไข: ปรับเป็น 2 บรรทัดตรงตามบรีฟของคุณพี่เป๊ะๆ ค๊า -->
+        <div class="title-group">
+            <span class="title-main">Staff Pass Status</span>
+            <span class="title-sub">Training Database</span>
+        </div>
 
         <!-- ฟอร์มค้นหา -->
         <form id="searchForm" onsubmit="handleSearch(event)">
