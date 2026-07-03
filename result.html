@@ -31,7 +31,6 @@
             box-shadow: 0 2px 10px rgba(0,0,0,0.05);
         }
 
-        /* ส่วนหัวของหน้าผลลัพธ์ */
         .header-section {
             display: flex;
             justify-content: space-between;
@@ -61,7 +60,38 @@
             color: #63666a;
         }
 
-        /* การจัดแต่งสไตล์ของตารางให้สวยงามตามตารางงาน */
+        /* กล่องสรุปผลลัพธ์การค้นหา */
+        .summary-box {
+            background-color: #f1f5f9;
+            border-left: 5px solid #cbd5e1;
+            padding: 15px 20px;
+            border-radius: 4px;
+            margin-bottom: 25px;
+            font-size: 1rem;
+            color: #475569;
+        }
+
+        .summary-title {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #1e293b;
+        }
+
+        .summary-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+            background: #ffffff;
+            padding: 12px;
+            border-radius: 6px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .summary-item strong {
+            color: #0f172a;
+        }
+
         .table-responsive {
             overflow-x: auto;
         }
@@ -97,7 +127,7 @@
             background-color: #fcfdfd;
         }
 
-        /* สัญลักษณ์แสดงสถานะ ผ่าน / ไม่ผ่าน */
+        /* ตัวอักษรสีเขียวเข้มเด่นชัดเมื่อข้อมูลตรงกับที่ค้นหา */
         .status-pass {
             color: #28a745;
             font-weight: bold;
@@ -106,16 +136,15 @@
             gap: 4px;
         }
 
+        /* ข้อมูลเก่า หรือ ข้อมูลที่ไม่ตรงกับรอบที่ค้นหา ให้จางลง */
+        .status-old {
+            color: #b9bfc6; 
+            font-weight: normal;
+        }
+
         .status-fail {
             color: #dc3545;
             font-weight: bold;
-        }
-
-        .no-data {
-            text-align: center;
-            padding: 40px;
-            color: #7d848c;
-            font-size: 1.1rem;
         }
 
         .loading {
@@ -136,6 +165,19 @@
             <a href="index.html" class="back-btn">⬅️ กลับไปหน้าค้นหา</a>
         </div>
 
+        <!-- ส่วนแสดงสรุปผลลัพธ์แยกหมวดหมู่ -->
+        <div id="summaryContainer" class="summary-box" style="display: none;">
+            <div class="summary-title">📊 สรุปรายงานผลลัพธ์การค้นหา</div>
+            <div>พบข้อมูลที่เกี่ยวข้องทั้งหมด: <strong id="totalRowsCount" style="color: #2563eb; font-size: 1.1rem;">0</strong> รายการ</div>
+            
+            <div id="dateDetailsBox" class="summary-details" style="display: none;">
+                <div class="summary-item">🍵 Beverage: <strong id="countBev">0</strong> ราย</div>
+                <div class="summary-item">🥞 Dessert: <strong id="countDes">0</strong> ราย</div>
+                <div class="summary-item">🍧 Kakigori: <strong id="countKak">0</strong> ราย</div>
+                <div class="summary-item">💰 Cashier: <strong id="countCas">0</strong> ราย</div>
+            </div>
+        </div>
+
         <div class="table-responsive">
             <div id="loadingMessage" class="loading">🔍 กำลังดึงข้อมูลจากกูเกิลชีต...</div>
             <table id="resultTable" style="display: none;">
@@ -153,20 +195,25 @@
                     </tr>
                 </thead>
                 <tbody id="tableBody">
-                    <!-- ข้อมูลพนักงานจะมาแสดงตรงนี้แบบอัตโนมัติ -->
                 </tbody>
             </table>
         </div>
     </div>
 
     <script>
-        // ใส่ลิงก์ที่คุณพี่ส่งมา พร้อมแปลงเป็น output=csv เพื่อดึงข้อมูลตารางให้เรียบร้อยแล้วค่ะ
         const GOOGLE_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTtZgqxG99w3oVtlk06QtWa5VxU8x8lBSzUC2C9EmNUFSdQFgkZ4DVl74k1TGmelXAVfo9wvHi9JqP8/pub?gid=0&single=true&output=csv';
 
-        // ดึงคำค้นหาจาก URL parameter
         const urlParams = new URLSearchParams(window.location.search);
         const searchQuery = urlParams.get('search') ? urlParams.get('search').trim().toLowerCase() : '';
         document.getElementById('keywordDisplay').innerText = urlParams.get('search') || '';
+
+        // เช็คว่าเป็นกลุ่มคำค้นหาที่เป็นเดือนหรือไม่ (เช่น jan-69, may-68)
+        const isSearchingDate = searchQuery.includes('-') && (
+            searchQuery.includes('jan') || searchQuery.includes('feb') || searchQuery.includes('mar') || 
+            searchQuery.includes('apr') || searchQuery.includes('may') || searchQuery.includes('jun') || 
+            searchQuery.includes('jul') || searchQuery.includes('aug') || searchQuery.includes('sep') || 
+            searchQuery.includes('oct') || searchQuery.includes('nov') || searchQuery.includes('dec')
+        );
 
         if (!searchQuery) {
             document.getElementById('loadingMessage').innerHTML = '❌ ไม่พบคำค้นหา โปรดกลับไปพิมพ์ข้อมูลใหม่อีกครั้ง';
@@ -174,7 +221,6 @@
             fetchData();
         }
 
-        // ฟังก์ชันดึงและแปลงข้อมูลจาก Google Sheet
         async function fetchData() {
             try {
                 const response = await fetch(GOOGLE_SHEET_CSV_URL);
@@ -182,18 +228,15 @@
                 
                 const data = await response.text();
                 
-                // แปลงข้อมูล CSV text ให้กลายเป็น Array แยกตามบรรทัด
                 const rows = data.split(/\r?\n/).map(row => {
                     return row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(cell => cell.replace(/^"|"$/g, '').trim());
                 });
 
-                // ตรวจสอบและค้นหาข้อมูลพนักงานตั้งแต่แถวที่ 2 เป็นต้นไป (ข้ามหัวตารางแถวแรก)
                 const matchedRows = [];
                 for(let i = 1; i < rows.length; i++) {
                     const row = rows[i];
-                    if (row.length <= 1 || !row[1]) continue; // ข้ามแถวที่ว่างหรือไม่มีข้อมูล ID
+                    if (row.length <= 1 || !row[1]) continue;
 
-                    // รวมข้อมูลทั้งหมดในแถวนั้นมาเช็คคำค้นหา (ค้นหาได้ทั้ง ID, ชื่อ, ชื่อเล่น, สาขา)
                     const fullRowString = row.join(' ').toLowerCase();
                     
                     if(fullRowString.includes(searchQuery)) {
@@ -201,19 +244,20 @@
                     }
                 }
 
-                displayData(matchedRows);
+                calculateAndDisplay(matchedRows);
 
             } catch (error) {
                 console.error(error);
-                document.getElementById('loadingMessage').innerHTML = '❌ เกิดข้อผิดพลาดในการเชื่อมต่อข้อมูลตาราง โปรดตรวจสอบการตั้งค่าแชร์เผยแพร่บน Google Sheet ค่ะ';
+                document.getElementById('loadingMessage').innerHTML = '❌ เกิดข้อผิดพลาดในการเชื่อมต่อข้อมูลตาราง';
             }
         }
 
-        // ฟังก์ชันนำข้อมูลพนักงานไปวาดแสดงในตารางบนเว็บ
-        function displayData(items) {
+        function calculateAndDisplay(items) {
             const loadingMessage = document.getElementById('loadingMessage');
             const resultTable = document.getElementById('resultTable');
             const tableBody = document.getElementById('tableBody');
+            const summaryContainer = document.getElementById('summaryContainer');
+            const dateDetailsBox = document.getElementById('dateDetailsBox');
             
             loadingMessage.style.display = 'none';
             tableBody.innerHTML = '';
@@ -221,37 +265,72 @@
             if (items.length === 0) {
                 loadingMessage.innerHTML = '🔍 ไม่พบข้อมูลพนักงานที่ตรงกับคำค้นหาของคุณพี่เลยค่ะ';
                 loadingMessage.style.display = 'block';
+                summaryContainer.style.display = 'none';
                 return;
             }
+
+            // ตัวนับยอดสะสมรายหมวดหมู่
+            let totalBev = 0, totalDes = 0, totalKak = 0, totalCas = 0;
 
             items.forEach(item => {
                 const tr = document.createElement('tr');
                 
-                // จัดรูปแบบผลสถานะสอบผ่านมาตรฐาน ( Beverage, Dessert, Kakigori, Cashier )
-                const renderStatus = (val) => {
+                // ฟังก์ชันจัดการความจางของแต่ละช่องข้อมูล
+                const renderStatus = (val, type) => {
                     if (!val || val.toUpperCase() === 'X' || val === '❌' || val === '-') {
                         return `<span class="status-fail">❌</span>`;
                     }
-                    // ถ้ามีข้อความบอกเดือนปีเช่น NOV-66, MAR-69 แสดงว่าผ่าน
+                    
+                    const cellValueLower = val.toLowerCase();
+                    
+                    // ถ้าผู้ใช้ค้นหาด้วย "เดือน" เจาะจง
+                    if (isSearchingDate) {
+                        if (cellValueLower.includes(searchQuery)) {
+                            // นับยอดสะสมเพิ่มขึ้นเมื่อเจอข้อมูลตรงรอบ
+                            if (type === 'bev') totalBev++;
+                            if (type === 'des') totalDes++;
+                            if (type === 'kak') totalKak++;
+                            if (type === 'cas') totalCas++;
+                            
+                            return `<span class="status-pass">✅ ${val}</span>`; // สีเขียวเด่น
+                        } else {
+                            return `<span class="status-old">${val}</span>`; // จางลงสีเทาตามสั่งค่ะ
+                        }
+                    }
+                    
+                    // ถ้าเป็นการค้นหาชื่อหรือสาขาปกติ ให้ผ่านเกณฑ์เป็นสีเขียวทั้งหมด
                     return `<span class="status-pass">✅ ${val}</span>`;
                 };
 
-                // จัดการโครงสร้างคอลัมน์ตามลำดับ
-                // [0]สถานะพนักงาน, [1]ID, [2]ชื่อ-สกุล, [3]ชื่อเล่น, [4]สาขา, [5]Beverage, [6]Dessert, [7]Kakigori, [8]Cashier
+                // ส่งค่าไปเช็คทีละคอลัมน์ [5]Bev, [6]Des, [7]Kak, [8]Cas
                 tr.innerHTML = `
                     <td>${item[0] || ''}</td>
                     <td class="center">${item[1] || ''}</td>
                     <td>${item[2] || ''}</td>
                     <td>${item[3] || ''}</td>
                     <td class="center">${item[4] || ''}</td>
-                    <td class="center">${renderStatus(item[5])}</td>
-                    <td class="center">${renderStatus(item[6])}</td>
-                    <td class="center">${renderStatus(item[7])}</td>
-                    <td class="center">${renderStatus(item[8])}</td>
+                    <td class="center">${renderStatus(item[5], 'bev')}</td>
+                    <td class="center">${renderStatus(item[6], 'des')}</td>
+                    <td class="center">${renderStatus(item[7], 'kak')}</td>
+                    <td class="center">${renderStatus(item[8], 'cas')}</td>
                 `;
                 tableBody.appendChild(tr);
             });
 
+            // แสดงผลกล่องแดชบอร์ดสรุปยอดด้านบน
+            document.getElementById('totalRowsCount').innerText = items.length;
+            
+            if (isSearchingDate) {
+                document.getElementById('countBev').innerText = totalBev;
+                document.getElementById('countDes').innerText = totalDes;
+                document.getElementById('countKak').innerText = totalKak;
+                document.getElementById('countCas').innerText = totalCas;
+                dateDetailsBox.style.display = 'grid'; // โชว์ยอดแยกหมวดหมู่เฉพาะตอนค้นเป็นเดือนรอบสอบ
+            } else {
+                dateDetailsBox.style.display = 'none';
+            }
+
+            summaryContainer.style.display = 'block';
             resultTable.style.display = 'table';
         }
     </script>
