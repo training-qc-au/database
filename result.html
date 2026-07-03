@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ผลการค้นหา - Training Database</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Prompt', sans-serif;
+            background-color: #fafafa;
+            color: #333;
+            padding: 30px 15px;
+        }
+
+        .result-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        /* ส่วนหัวของหน้าผลลัพธ์ */
+        .header-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+
+        .back-btn {
+            background-color: #dbe4ec;
+            color: #495057;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+
+        .back-btn:hover {
+            background-color: #cfdae5;
+        }
+
+        .search-term-title {
+            font-size: 1.3rem;
+            color: #63666a;
+        }
+
+        /* การจัดแต่งสไตล์ของตารางให้สวยงามตามตารางงาน */
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            font-size: 0.95rem;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f8f9fa;
+            color: #495057;
+            font-weight: 600;
+            padding: 12px;
+            border-bottom: 2px solid #dee2e6;
+            white-space: nowrap;
+        }
+
+        th.center, td.center {
+            text-align: center;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #dee2e6;
+            white-space: nowrap;
+        }
+
+        tr:hover {
+            background-color: #fcfdfd;
+        }
+
+        /* สัญลักษณ์แสดงสถานะ ผ่าน / ไม่ผ่าน */
+        .status-pass {
+            color: #28a745;
+            font-weight: bold;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .status-fail {
+            color: #dc3545;
+            font-weight: bold;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 40px;
+            color: #7d848c;
+            font-size: 1.1rem;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            font-size: 1.1rem;
+            color: #63666a;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="result-container">
+        <div class="header-section">
+            <div class="search-term-title">
+                ผลการค้นหาคำว่า: <strong id="keywordDisplay" style="color: #000;">-</strong>
+            </div>
+            <a href="index.html" class="back-btn">⬅️ กลับไปหน้าค้นหา</a>
+        </div>
+
+        <div class="table-responsive">
+            <div id="loadingMessage" class="loading">🔍 กำลังดึงข้อมูลจากกูเกิลชีต...</div>
+            <table id="resultTable" style="display: none;">
+                <thead>
+                    <tr>
+                        <th>สถานะพนักงาน</th>
+                        <th class="center">ID</th>
+                        <th>ชื่อ-สกุล</th>
+                        <th>ชื่อเล่น</th>
+                        <th class="center">สาขา</th>
+                        <th class="center">Beverage</th>
+                        <th class="center">Dessert</th>
+                        <th class="center">Kakigori</th>
+                        <th class="center">Cashier</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    <!-- ข้อมูลพนักงานจะมาแสดงตรงนี้แบบอัตโนมัติ -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // ใส่ลิงก์ที่คุณพี่ส่งมา พร้อมแปลงเป็น output=csv เพื่อดึงข้อมูลตารางให้เรียบร้อยแล้วค่ะ
+        const GOOGLE_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTtZgqxG99w3oVtlk06QtWa5VxU8x8lBSzUC2C9EmNUFSdQFgkZ4DVl74k1TGmelXAVfo9wvHi9JqP8/pub?gid=0&single=true&output=csv';
+
+        // ดึงคำค้นหาจาก URL parameter
+        const urlParams = new URLSearchParams(window.location.search);
+        const searchQuery = urlParams.get('search') ? urlParams.get('search').trim().toLowerCase() : '';
+        document.getElementById('keywordDisplay').innerText = urlParams.get('search') || '';
+
+        if (!searchQuery) {
+            document.getElementById('loadingMessage').innerHTML = '❌ ไม่พบคำค้นหา โปรดกลับไปพิมพ์ข้อมูลใหม่อีกครั้ง';
+        } else {
+            fetchData();
+        }
+
+        // ฟังก์ชันดึงและแปลงข้อมูลจาก Google Sheet
+        async function fetchData() {
+            try {
+                const response = await fetch(GOOGLE_SHEET_CSV_URL);
+                if (!response.ok) throw new Error('Network response was not ok');
+                
+                const data = await response.text();
+                
+                // แปลงข้อมูล CSV text ให้กลายเป็น Array แยกตามบรรทัด
+                const rows = data.split(/\r?\n/).map(row => {
+                    return row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(cell => cell.replace(/^"|"$/g, '').trim());
+                });
+
+                // ตรวจสอบและค้นหาข้อมูลพนักงานตั้งแต่แถวที่ 2 เป็นต้นไป (ข้ามหัวตารางแถวแรก)
+                const matchedRows = [];
+                for(let i = 1; i < rows.length; i++) {
+                    const row = rows[i];
+                    if (row.length <= 1 || !row[1]) continue; // ข้ามแถวที่ว่างหรือไม่มีข้อมูล ID
+
+                    // รวมข้อมูลทั้งหมดในแถวนั้นมาเช็คคำค้นหา (ค้นหาได้ทั้ง ID, ชื่อ, ชื่อเล่น, สาขา)
+                    const fullRowString = row.join(' ').toLowerCase();
+                    
+                    if(fullRowString.includes(searchQuery)) {
+                        matchedRows.push(row);
+                    }
+                }
+
+                displayData(matchedRows);
+
+            } catch (error) {
+                console.error(error);
+                document.getElementById('loadingMessage').innerHTML = '❌ เกิดข้อผิดพลาดในการเชื่อมต่อข้อมูลตาราง โปรดตรวจสอบการตั้งค่าแชร์เผยแพร่บน Google Sheet ค่ะ';
+            }
+        }
+
+        // ฟังก์ชันนำข้อมูลพนักงานไปวาดแสดงในตารางบนเว็บ
+        function displayData(items) {
+            const loadingMessage = document.getElementById('loadingMessage');
+            const resultTable = document.getElementById('resultTable');
+            const tableBody = document.getElementById('tableBody');
+            
+            loadingMessage.style.display = 'none';
+            tableBody.innerHTML = '';
+
+            if (items.length === 0) {
+                loadingMessage.innerHTML = '🔍 ไม่พบข้อมูลพนักงานที่ตรงกับคำค้นหาของคุณพี่เลยค่ะ';
+                loadingMessage.style.display = 'block';
+                return;
+            }
+
+            items.forEach(item => {
+                const tr = document.createElement('tr');
+                
+                // จัดรูปแบบผลสถานะสอบผ่านมาตรฐาน ( Beverage, Dessert, Kakigori, Cashier )
+                const renderStatus = (val) => {
+                    if (!val || val.toUpperCase() === 'X' || val === '❌' || val === '-') {
+                        return `<span class="status-fail">❌</span>`;
+                    }
+                    // ถ้ามีข้อความบอกเดือนปีเช่น NOV-66, MAR-69 แสดงว่าผ่าน
+                    return `<span class="status-pass">✅ ${val}</span>`;
+                };
+
+                // จัดการโครงสร้างคอลัมน์ตามลำดับ
+                // [0]สถานะพนักงาน, [1]ID, [2]ชื่อ-สกุล, [3]ชื่อเล่น, [4]สาขา, [5]Beverage, [6]Dessert, [7]Kakigori, [8]Cashier
+                tr.innerHTML = `
+                    <td>${item[0] || ''}</td>
+                    <td class="center">${item[1] || ''}</td>
+                    <td>${item[2] || ''}</td>
+                    <td>${item[3] || ''}</td>
+                    <td class="center">${item[4] || ''}</td>
+                    <td class="center">${renderStatus(item[5])}</td>
+                    <td class="center">${renderStatus(item[6])}</td>
+                    <td class="center">${renderStatus(item[7])}</td>
+                    <td class="center">${renderStatus(item[8])}</td>
+                `;
+                tableBody.appendChild(tr);
+            });
+
+            resultTable.style.display = 'table';
+        }
+    </script>
+</body>
+</html>
