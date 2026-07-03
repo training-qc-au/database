@@ -23,6 +23,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            overflow-x: hidden; /* ป้องกันไม่ให้แถบเลื่อนแนวนอนโผล่ตอนน้องแกะเดินมานอกจอค่ะ */
         }
 
         .container {
@@ -35,21 +36,41 @@
         /* ส่วนของ Logo ด้านบน */
         .logo-area {
             margin-bottom: 25px;
+            display: flex;
+            justify-content: center;
         }
 
+        /* จัดแต่งการขยับและแอนิเมชันให้เจ้าแกะเดิน */
         .logo-area img {
             width: 70px;
             height: auto;
             opacity: 0.7;
+            position: relative;
+            /* เรียกใช้แอนิเมชันชื่อ sheepWalk ใช้เวลาเดิน 1.5 วินาที พอเดินเสร็จให้หยุดอยู่ตรงกลาง */
+            animation: sheepWalk 1.5s ease-out forwards; 
         }
 
-        /* แก้ไข: ปรับขนาดเล็กลงเหลือ 3/4 และตั้งตรงตามสั่งเลยค่ะ */
+        /* กำหนดทิศทางการเดินของน้องแกะจากขวามาตรงกลาง */
+        @keyframes sheepWalk {
+            0% {
+                transform: translateX(100vw); /* เริ่มต้นอยู่นอกจอด้านขวาสุด */
+                opacity: 0;
+            }
+            70% {
+                opacity: 0.7;
+            }
+            100% {
+                transform: translateX(0); /* เดินมาหยุดตรงจุด Center ปัจจุบันเป๊ะๆ */
+                opacity: 0.7;
+            }
+        }
+
+        /* ชื่อระบบแบบตรงสวยงาม */
         .title {
             font-family: 'Itim', cursive;
-            font-size: 2.6rem; /* ปรับขนาดลดลงมาแล้วค่ะ */
+            font-size: 2.6rem;
             color: #63666a;
             margin-bottom: 60px;
-            transform: none; /* เอาความเอียงออก เรียบร้อยตรงเป๊ะแน่นอน */
             display: inline-block;
             letter-spacing: 1px;
         }
@@ -88,7 +109,7 @@
 <body>
 
     <div class="container">
-        <!-- ส่วนโลโก้แกะ -->
+        <!-- ส่วนโลโก้แกะขยับได้ -->
         <div class="logo-area">
             <img src="แกะโลโก้.png" alt="Logo">
         </div>
