@@ -23,7 +23,7 @@
         }
 
         .result-container {
-            max-width: 1200px;
+            max-width: 1300px; /* ขยายขนาดหน้าต่างเพิ่มขึ้นเล็กน้อยเพื่อรองรับคอลัมน์ใหม่ค่ะ */
             margin: 0 auto;
             background-color: #ffffff;
             padding: 25px;
@@ -60,7 +60,6 @@
             color: #63666a;
         }
 
-        /* กล่องสรุปผลลัพธ์การค้นหา */
         .summary-box {
             background-color: #f1f5f9;
             border-left: 5px solid #cbd5e1;
@@ -88,10 +87,6 @@
             border: 1px solid #e2e8f0;
         }
 
-        .summary-item strong {
-            color: #0f172a;
-        }
-
         .table-responsive {
             overflow-x: auto;
         }
@@ -117,17 +112,32 @@
             text-align: center;
         }
 
+        /* ตกแต่งหัวตารางของคอลัมน์ใหม่ให้เด่นขึ้น */
+        th.total-station-col {
+            background-color: #f1f5f9;
+            text-align: center;
+            border-left: 1px solid #e2e8f0;
+        }
+
         td {
             padding: 12px;
             border-bottom: 1px solid #dee2e6;
             white-space: nowrap;
         }
 
+        /* ตกแต่งเนื้อหาคอลัมน์ใหม่ให้น่ารักอ่านง่าย */
+        td.total-station-val {
+            text-align: center;
+            font-weight: bold;
+            color: #475569;
+            background-color: #f8fafc;
+            border-left: 1px solid #e2e8f0;
+        }
+
         tr:hover {
             background-color: #fcfdfd;
         }
 
-        /* ตัวอักษรสีเขียวเข้มเด่นชัดเมื่อข้อมูลตรงกับที่ค้นหา */
         .status-pass {
             color: #28a745;
             font-weight: bold;
@@ -136,7 +146,6 @@
             gap: 4px;
         }
 
-        /* ข้อมูลเก่า หรือ ข้อมูลที่ไม่ตรงกับรอบที่ค้นหา ให้จางลง */
         .status-old {
             color: #b9bfc6; 
             font-weight: normal;
@@ -165,7 +174,6 @@
             <a href="index.html" class="back-btn">⬅️ กลับไปหน้าค้นหา</a>
         </div>
 
-        <!-- ส่วนแสดงสรุปผลลัพธ์แยกหมวดหมู่ -->
         <div id="summaryContainer" class="summary-box" style="display: none;">
             <div class="summary-title">📊 สรุปรายงานผลลัพธ์การค้นหา</div>
             <div>พบข้อมูลที่เกี่ยวข้องทั้งหมด: <strong id="totalRowsCount" style="color: #2563eb; font-size: 1.1rem;">0</strong> รายการ</div>
@@ -192,6 +200,8 @@
                         <th class="center">Dessert</th>
                         <th class="center">Kakigori</th>
                         <th class="center">Cashier</th>
+                        <!-- เพิ่มหัวข้อคอลัมน์ใหม่ตรงนี้ค่ะ -->
+                        <th class="total-station-col">สอบผ่านรวม<br>(Station)</th>
                     </tr>
                 </thead>
                 <tbody id="tableBody">
@@ -207,7 +217,6 @@
         const searchQuery = urlParams.get('search') ? urlParams.get('search').trim().toLowerCase() : '';
         document.getElementById('keywordDisplay').innerText = urlParams.get('search') || '';
 
-        // เช็คว่าเป็นกลุ่มคำค้นหาที่เป็นเดือนหรือไม่ (เช่น jan-69, may-68)
         const isSearchingDate = searchQuery.includes('-') && (
             searchQuery.includes('jan') || searchQuery.includes('feb') || searchQuery.includes('mar') || 
             searchQuery.includes('apr') || searchQuery.includes('may') || searchQuery.includes('jun') || 
@@ -269,13 +278,11 @@
                 return;
             }
 
-            // ตัวนับยอดสะสมรายหมวดหมู่
             let totalBev = 0, totalDes = 0, totalKak = 0, totalCas = 0;
 
             items.forEach(item => {
                 const tr = document.createElement('tr');
                 
-                // ฟังก์ชันจัดการความจางของแต่ละช่องข้อมูล
                 const renderStatus = (val, type) => {
                     if (!val || val.toUpperCase() === 'X' || val === '❌' || val === '-') {
                         return `<span class="status-fail">❌</span>`;
@@ -283,26 +290,23 @@
                     
                     const cellValueLower = val.toLowerCase();
                     
-                    // ถ้าผู้ใช้ค้นหาด้วย "เดือน" เจาะจง
                     if (isSearchingDate) {
                         if (cellValueLower.includes(searchQuery)) {
-                            // นับยอดสะสมเพิ่มขึ้นเมื่อเจอข้อมูลตรงรอบ
                             if (type === 'bev') totalBev++;
                             if (type === 'des') totalDes++;
                             if (type === 'kak') totalKak++;
                             if (type === 'cas') totalCas++;
                             
-                            return `<span class="status-pass">✅ ${val}</span>`; // สีเขียวเด่น
+                            return `<span class="status-pass">✅ ${val}</span>`;
                         } else {
-                            return `<span class="status-old">${val}</span>`; // จางลงสีเทาตามสั่งค่ะ
+                            return `<span class="status-old">${val}</span>`;
                         }
                     }
                     
-                    // ถ้าเป็นการค้นหาชื่อหรือสาขาปกติ ให้ผ่านเกณฑ์เป็นสีเขียวทั้งหมด
                     return `<span class="status-pass">✅ ${val}</span>`;
                 };
 
-                // ส่งค่าไปเช็คทีละคอลัมน์ [5]Bev, [6]Des, [7]Kak, [8]Cas
+                // ดึงข้อมูลแถวใหม่ item[9] มาแปะเป็นคอลัมน์สุดท้ายเรียบร้อยค่ะ
                 tr.innerHTML = `
                     <td>${item[0] || ''}</td>
                     <td class="center">${item[1] || ''}</td>
@@ -313,11 +317,11 @@
                     <td class="center">${renderStatus(item[6], 'des')}</td>
                     <td class="center">${renderStatus(item[7], 'kak')}</td>
                     <td class="center">${renderStatus(item[8], 'cas')}</td>
+                    <td class="total-station-val">${item[9] || '0'}</td>
                 `;
                 tableBody.appendChild(tr);
             });
 
-            // แสดงผลกล่องแดชบอร์ดสรุปยอดด้านบน
             document.getElementById('totalRowsCount').innerText = items.length;
             
             if (isSearchingDate) {
@@ -325,7 +329,7 @@
                 document.getElementById('countDes').innerText = totalDes;
                 document.getElementById('countKak').innerText = totalKak;
                 document.getElementById('countCas').innerText = totalCas;
-                dateDetailsBox.style.display = 'grid'; // โชว์ยอดแยกหมวดหมู่เฉพาะตอนค้นเป็นเดือนรอบสอบ
+                dateDetailsBox.style.display = 'grid';
             } else {
                 dateDetailsBox.style.display = 'none';
             }
