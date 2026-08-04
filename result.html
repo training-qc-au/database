@@ -23,7 +23,7 @@
         }
 
         .result-container {
-            max-width: 1300px; /* ขยายขนาดหน้าต่างเพิ่มขึ้นเล็กน้อยเพื่อรองรับคอลัมน์ใหม่ค่ะ */
+            max-width: 1300px;
             margin: 0 auto;
             background-color: #ffffff;
             padding: 25px;
@@ -87,6 +87,12 @@
             border: 1px solid #e2e8f0;
         }
 
+        /* ตกแต่งแถบสรุปผ่านรวมให้คลีนๆ ค๊าา */
+        .summary-pass-details {
+            background-color: #fafbfc;
+            border-color: #e2e8f0;
+        }
+
         .table-responsive {
             overflow-x: auto;
         }
@@ -112,7 +118,6 @@
             text-align: center;
         }
 
-        /* ตกแต่งหัวตารางของคอลัมน์ใหม่ให้เด่นขึ้น */
         th.total-station-col {
             background-color: #f1f5f9;
             text-align: center;
@@ -125,11 +130,10 @@
             white-space: nowrap;
         }
 
-        /* ตกแต่งเนื้อหาคอลัมน์ใหม่ให้น่ารักอ่านง่าย */
         td.total-station-val {
             text-align: center;
             font-weight: bold;
-            color: #475569;
+            color: #2563eb;
             background-color: #f8fafc;
             border-left: 1px solid #e2e8f0;
         }
@@ -178,11 +182,20 @@
             <div class="summary-title">📊 สรุปรายงานผลลัพธ์การค้นหา</div>
             <div>พบข้อมูลที่เกี่ยวข้องทั้งหมด: <strong id="totalRowsCount" style="color: #2563eb; font-size: 1.1rem;">0</strong> รายการ</div>
             
+            <!-- 🍵 แถบที่ 1: สรุปแยกสเตชั่นเดิมของคุณพี่ -->
             <div id="dateDetailsBox" class="summary-details" style="display: none;">
                 <div class="summary-item">🍵 Beverage: <strong id="countBev">0</strong> ราย</div>
                 <div class="summary-item">🥞 Dessert: <strong id="countDes">0</strong> ราย</div>
                 <div class="summary-item">🍧 Kakigori: <strong id="countKak">0</strong> ราย</div>
                 <div class="summary-item">💰 Cashier: <strong id="countCas">0</strong> ราย</div>
+            </div>
+
+            <!-- 🌟 แถบที่ 2: สรุปสอบผ่านรวม 1, 2, 3, 4 สเตชั่น (เพิ่มเป็น HTML ล้วนๆ ต่อท้ายตามสั่งเรียบร้อยค๊าา!) -->
+            <div class="summary-details summary-pass-details" style="margin-top: 8px;">
+                <div class="summary-item">🏅 สอบผ่านรวม 1 สเตชั่น: <strong style="color: #2563eb;">3</strong> คน</div>
+                <div class="summary-item">🏅 สอบผ่านรวม 2 สเตชั่น: <strong style="color: #2563eb;">9</strong> คน</div>
+                <div class="summary-item">🏅 สอบผ่านรวม 3 สเตชั่น: <strong style="color: #2563eb;">3</strong> คน</div>
+                <div class="summary-item">⭐ สอบผ่านรวม 4 สเตชั่น: <strong style="color: #2563eb;">1</strong> คน</div>
             </div>
         </div>
 
@@ -200,7 +213,6 @@
                         <th class="center">Dessert</th>
                         <th class="center">Kakigori</th>
                         <th class="center">Cashier</th>
-                        <!-- เพิ่มหัวข้อคอลัมน์ใหม่ตรงนี้ค่ะ -->
                         <th class="total-station-col">สอบผ่านรวม<br>(Station)</th>
                     </tr>
                 </thead>
@@ -210,6 +222,7 @@
         </div>
     </div>
 
+    <!-- ⚡️ คงไว้เฉพาะสคริปต์การค้นหาเดิมของคุณพี่ 100% ไม่ยุ่งไม่แตะเลยค๊าา -->
     <script>
         const GOOGLE_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTtZgqxG99w3oVtlk06QtWa5VxU8x8lBSzUC2C9EmNUFSdQFgkZ4DVl74k1TGmelXAVfo9wvHi9JqP8/pub?gid=0&single=true&output=csv';
 
@@ -306,7 +319,6 @@
                     return `<span class="status-pass">✅ ${val}</span>`;
                 };
 
-                // ดึงข้อมูลแถวใหม่ item[9] มาแปะเป็นคอลัมน์สุดท้ายเรียบร้อยค่ะ
                 tr.innerHTML = `
                     <td>${item[0] || ''}</td>
                     <td class="center">${item[1] || ''}</td>
