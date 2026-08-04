@@ -3,260 +3,340 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>สรุปรายงานผลลัพธ์การค้นหา</title>
+    <title>ผลการค้นหา - Training Database</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Anuphan:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
     
     <style>
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: 'Anuphan', sans-serif;
         }
 
         body {
-            background-color: #ffffff;
-            padding: 20px;
-            color: #333333;
+            font-family: 'Prompt', sans-serif;
+            background-color: #fafafa;
+            color: #333;
+            padding: 30px 15px;
         }
 
-        /* 📊 การ์ดสรุปรายงานผลลัพธ์การค้นหาด้านบน */
-        .summary-card {
-            background-color: #f4f6f9;
-            border-radius: 12px;
-            padding: 20px 24px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        .result-container {
+            max-width: 1300px; /* ขยายขนาดหน้าต่างเพิ่มขึ้นเล็กน้อยเพื่อรองรับคอลัมน์ใหม่ค่ะ */
+            margin: 0 auto;
+            background-color: #ffffff;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .header-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+
+        .back-btn {
+            background-color: #dbe4ec;
+            color: #495057;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+
+        .back-btn:hover {
+            background-color: #cfdae5;
+        }
+
+        .search-term-title {
+            font-size: 1.3rem;
+            color: #63666a;
+        }
+
+        .summary-box {
+            background-color: #f1f5f9;
+            border-left: 5px solid #cbd5e1;
+            padding: 15px 20px;
+            border-radius: 4px;
             margin-bottom: 25px;
+            font-size: 1rem;
+            color: #475569;
         }
 
-        .summary-header {
-            font-size: 18px;
-            margin-bottom: 6px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: #2b364b;
+        .summary-title {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #1e293b;
         }
 
-        .summary-total {
-            font-size: 15px;
-            color: #555555;
-            margin-bottom: 16px;
-        }
-
-        .highlight-num {
-            color: #1a56db;
-            font-weight: 700;
-            font-size: 16px;
-        }
-
-        .summary-grid {
+        .summary-details {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 15px;
-            background-color: #ffffff;
-            border: 1px solid #e5e7eb;
-            border-radius: 10px;
-            padding: 14px 20px;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+            background: #ffffff;
+            padding: 12px;
+            border-radius: 6px;
+            border: 1px solid #e2e8f0;
         }
 
-        .station-grid {
-            margin-bottom: 12px;
-        }
-
-        .pass-grid {
-            background-color: #fafbfc;
-            border-color: #e2e8f0;
-        }
-
-        .summary-item {
-            font-size: 15px;
-            color: #4b5563;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .summary-item strong {
-            color: #111827;
-            font-weight: 700;
-        }
-
-        .pass-item {
-            color: #374151;
-            font-size: 14.5px;
-        }
-
-        /* 📑 ตารางข้อมูลพนักงาน (ปรับแต่งตามรูป ref เป๊ะๆ) */
-        .table-container {
-            width: 100%;
+        .table-responsive {
             overflow-x: auto;
         }
 
-        .data-table {
+        table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 14px;
+            margin-top: 10px;
+            font-size: 0.95rem;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f8f9fa;
+            color: #495057;
+            font-weight: 600;
+            padding: 12px;
+            border-bottom: 2px solid #dee2e6;
+            white-space: nowrap;
+        }
+
+        th.center, td.center {
             text-align: center;
         }
 
-        .data-table th, .data-table td {
-            border: 1px solid #d1d5db;
-            padding: 8px 10px;
-            vertical-align: middle;
+        /* ตกแต่งหัวตารางของคอลัมน์ใหม่ให้เด่นขึ้น */
+        th.total-station-col {
+            background-color: #f1f5f9;
+            text-align: center;
+            border-left: 1px solid #e2e8f0;
         }
 
-        .data-table th {
-            background-color: #f9fafb;
-            font-weight: 700;
-            color: #374151;
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #dee2e6;
+            white-space: nowrap;
         }
 
-        .text-left {
-            text-align: left !important;
-        }
-
-        /* สไตล์เครื่องหมาย ผ่าน / ไม่ผ่าน */
-        .pass-tag {
-            color: #15803d;
-            font-weight: 600;
-            font-size: 13px;
-        }
-
-        .fail-tag {
-            color: #dc2626;
-            font-weight: 700;
-            font-size: 15px;
-        }
-
-        /* ตกแต่งคอลัมน์สรุปสอบผ่านรวมด้านขวาสุด */
-        .total-pass-col {
-            font-weight: 700;
-            color: #1a56db;
+        /* ตกแต่งเนื้อหาคอลัมน์ใหม่ให้น่ารักอ่านง่าย */
+        td.total-station-val {
+            text-align: center;
+            font-weight: bold;
+            color: #475569;
             background-color: #f8fafc;
+            border-left: 1px solid #e2e8f0;
         }
 
-        @media (max-width: 900px) {
-            .summary-grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 12px;
-            }
+        tr:hover {
+            background-color: #fcfdfd;
+        }
+
+        .status-pass {
+            color: #28a745;
+            font-weight: bold;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .status-old {
+            color: #b9bfc6; 
+            font-weight: normal;
+        }
+
+        .status-fail {
+            color: #dc3545;
+            font-weight: bold;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            font-size: 1.1rem;
+            color: #63666a;
         }
     </style>
 </head>
 <body>
 
-    <!-- 📊 การ์ดสรุปด้านบน (มี 2 แถบตามสั่งค๊าา) -->
-    <div class="summary-card">
-        <div class="summary-header">
-            <span>📊</span>
-            <strong>สรุปรายงานผลลัพธ์การค้นหา</strong>
-        </div>
-        <div class="summary-total">
-            พบข้อมูลที่เกี่ยวข้องทั้งหมด: <span class="highlight-num">29</span> รายการ
+    <div class="result-container">
+        <div class="header-section">
+            <div class="search-term-title">
+                ผลการค้นหาคำว่า: <strong id="keywordDisplay" style="color: #000;">-</strong>
+            </div>
+            <a href="index.html" class="back-btn">⬅️ กลับไปหน้าค้นหา</a>
         </div>
 
-        <!-- แถบ 1: สรุปแยกสเตชั่น -->
-        <div class="summary-grid station-grid">
-            <div class="summary-item">🍵 Beverage: <strong>13</strong> ราย</div>
-            <div class="summary-item">🥞 Dessert: <strong>5</strong> ราย</div>
-            <div class="summary-item">🍧 Kakigori: <strong>8</strong> ราย</div>
-            <div class="summary-item">💰 Cashier: <strong>5</strong> ราย</div>
+        <div id="summaryContainer" class="summary-box" style="display: none;">
+            <div class="summary-title">📊 สรุปรายงานผลลัพธ์การค้นหา</div>
+            <div>พบข้อมูลที่เกี่ยวข้องทั้งหมด: <strong id="totalRowsCount" style="color: #2563eb; font-size: 1.1rem;">0</strong> รายการ</div>
+            
+            <div id="dateDetailsBox" class="summary-details" style="display: none;">
+                <div class="summary-item">🍵 Beverage: <strong id="countBev">0</strong> ราย</div>
+                <div class="summary-item">🥞 Dessert: <strong id="countDes">0</strong> ราย</div>
+                <div class="summary-item">🍧 Kakigori: <strong id="countKak">0</strong> ราย</div>
+                <div class="summary-item">💰 Cashier: <strong id="countCas">0</strong> ราย</div>
+            </div>
         </div>
 
-        <!-- แถบ 2: สรุปผ่านรวมรายสเตชั่น (เพิ่มใหม่ต่อท้าย) -->
-        <div class="summary-grid pass-grid">
-            <div class="summary-item pass-item">🏅 สอบผ่านรวม 1 สเตชั่น: <strong>3</strong> คน</div>
-            <div class="summary-item pass-item">🏅 สอบผ่านรวม 2 สเตชั่น: <strong>9</strong> คน</div>
-            <div class="summary-item pass-item">🏅 สอบผ่านรวม 3 สเตชั่น: <strong>3</strong> คน</div>
-            <div class="summary-item pass-item">⭐ สอบผ่านรวม 4 สเตชั่น: <strong>1</strong> คน</div>
+        <div class="table-responsive">
+            <div id="loadingMessage" class="loading">🔍 กำลังดึงข้อมูลจากกูเกิลชีต...</div>
+            <table id="resultTable" style="display: none;">
+                <thead>
+                    <tr>
+                        <th>สถานะพนักงาน</th>
+                        <th class="center">ID</th>
+                        <th>ชื่อ-สกุล</th>
+                        <th>ชื่อเล่น</th>
+                        <th class="center">สาขา</th>
+                        <th class="center">Beverage</th>
+                        <th class="center">Dessert</th>
+                        <th class="center">Kakigori</th>
+                        <th class="center">Cashier</th>
+                        <!-- เพิ่มหัวข้อคอลัมน์ใหม่ตรงนี้ค่ะ -->
+                        <th class="total-station-col">สอบผ่านรวม<br>(Station)</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                </tbody>
+            </table>
         </div>
     </div>
 
-    <!-- 📑 ตารางข้อมูลพนักงาน (คงไว้ครบทุกคอลัมน์ + เพิ่มคอลัมน์ขวาสุดเรียบร้อยค๊าา) -->
-    <div class="table-container">
-        <table class="data-table">
-            <thead>
-                <tr>
-                    <th>สถานะพนักงาน</th>
-                    <th>ID</th>
-                    <th>ชื่อ-สกุล</th>
-                    <th>ชื่อเล่น</th>
-                    <th>สาขา</th>
-                    <th>Beverage</th>
-                    <th>Dessert</th>
-                    <th>Kakigori</th>
-                    <th>Cashier</th>
-                    <!-- 🌟 คอลัมน์ใหม่ขวาสุดที่คุณพี่ต้องการค๊าา -->
-                    <th>สอบผ่านรวม<br>(Station)</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>-</td>
-                    <td>21310</td>
-                    <td class="text-left">สุภาพร พลทัย</td>
-                    <td>ก้อย</td>
-                    <td>ACP</td>
-                    <td><span class="pass-tag">✅ JAN-69</span></td>
-                    <td><span class="fail-tag">❌</span></td>
-                    <td><span class="fail-tag">❌</span></td>
-                    <td><span class="fail-tag">❌</span></td>
-                    <td class="total-pass-col">1</td>
-                </tr>
-                <tr>
-                    <td>-</td>
-                    <td>22338</td>
-                    <td class="text-left">ปรมาภรณ์ อัศวเดช</td>
-                    <td>ปาน</td>
-                    <td>AUC</td>
-                    <td><span class="pass-tag">✅ JAN-69</span></td>
-                    <td><span class="fail-tag">❌</span></td>
-                    <td><span class="fail-tag">❌</span></td>
-                    <td><span class="fail-tag">❌</span></td>
-                    <td class="total-pass-col">1</td>
-                </tr>
-                <tr>
-                    <td>-</td>
-                    <td>18891</td>
-                    <td class="text-left">Kalayar Zin Zin Moe</td>
-                    <td>ZinZin</td>
-                    <td>APN</td>
-                    <td><span class="pass-tag">✅ JAN-69</span></td>
-                    <td><span class="fail-tag">❌</span></td>
-                    <td><span class="pass-tag">✅ JAN-69</span></td>
-                    <td><span class="fail-tag">❌</span></td>
-                    <td class="total-pass-col">2</td>
-                </tr>
-                <tr>
-                    <td>-</td>
-                    <td>21791</td>
-                    <td class="text-left">เยาวเรศ แสงอุไร</td>
-                    <td>ผักบุ้ง</td>
-                    <td>AEP</td>
-                    <td><span class="pass-tag">✅ JAN-69</span></td>
-                    <td><span class="pass-tag">✅ NOV-68</span></td>
-                    <td><span class="pass-tag">✅ MAY-69</span></td>
-                    <td><span class="fail-tag">❌</span></td>
-                    <td class="total-pass-col">3</td>
-                </tr>
-                <tr>
-                    <td>-</td>
-                    <td>18231</td>
-                    <td class="text-left">อนุชา ทององค์</td>
-                    <td>เบนซ์</td>
-                    <td>ABH</td>
-                    <td><span class="pass-tag">✅ JAN-69</span></td>
-                    <td><span class="pass-tag">✅ JUL-68</span></td>
-                    <td><span class="pass-tag">✅ MAR-68</span></td>
-                    <td><span class="pass-tag">✅ MAY-69</span></td>
-                    <td class="total-pass-col">4</td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
+    <script>
+        const GOOGLE_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTtZgqxG99w3oVtlk06QtWa5VxU8x8lBSzUC2C9EmNUFSdQFgkZ4DVl74k1TGmelXAVfo9wvHi9JqP8/pub?gid=0&single=true&output=csv';
 
+        const urlParams = new URLSearchParams(window.location.search);
+        const searchQuery = urlParams.get('search') ? urlParams.get('search').trim().toLowerCase() : '';
+        document.getElementById('keywordDisplay').innerText = urlParams.get('search') || '';
+
+        const isSearchingDate = searchQuery.includes('-') && (
+            searchQuery.includes('jan') || searchQuery.includes('feb') || searchQuery.includes('mar') || 
+            searchQuery.includes('apr') || searchQuery.includes('may') || searchQuery.includes('jun') || 
+            searchQuery.includes('jul') || searchQuery.includes('aug') || searchQuery.includes('sep') || 
+            searchQuery.includes('oct') || searchQuery.includes('nov') || searchQuery.includes('dec')
+        );
+
+        if (!searchQuery) {
+            document.getElementById('loadingMessage').innerHTML = '❌ ไม่พบคำค้นหา โปรดกลับไปพิมพ์ข้อมูลใหม่อีกครั้ง';
+        } else {
+            fetchData();
+        }
+
+        async function fetchData() {
+            try {
+                const response = await fetch(GOOGLE_SHEET_CSV_URL);
+                if (!response.ok) throw new Error('Network response was not ok');
+                
+                const data = await response.text();
+                
+                const rows = data.split(/\r?\n/).map(row => {
+                    return row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(cell => cell.replace(/^"|"$/g, '').trim());
+                });
+
+                const matchedRows = [];
+                for(let i = 1; i < rows.length; i++) {
+                    const row = rows[i];
+                    if (row.length <= 1 || !row[1]) continue;
+
+                    const fullRowString = row.join(' ').toLowerCase();
+                    
+                    if(fullRowString.includes(searchQuery)) {
+                        matchedRows.push(row);
+                    }
+                }
+
+                calculateAndDisplay(matchedRows);
+
+            } catch (error) {
+                console.error(error);
+                document.getElementById('loadingMessage').innerHTML = '❌ เกิดข้อผิดพลาดในการเชื่อมต่อข้อมูลตาราง';
+            }
+        }
+
+        function calculateAndDisplay(items) {
+            const loadingMessage = document.getElementById('loadingMessage');
+            const resultTable = document.getElementById('resultTable');
+            const tableBody = document.getElementById('tableBody');
+            const summaryContainer = document.getElementById('summaryContainer');
+            const dateDetailsBox = document.getElementById('dateDetailsBox');
+            
+            loadingMessage.style.display = 'none';
+            tableBody.innerHTML = '';
+
+            if (items.length === 0) {
+                loadingMessage.innerHTML = '🔍 ไม่พบข้อมูลพนักงานที่ตรงกับคำค้นหาของคุณพี่เลยค่ะ';
+                loadingMessage.style.display = 'block';
+                summaryContainer.style.display = 'none';
+                return;
+            }
+
+            let totalBev = 0, totalDes = 0, totalKak = 0, totalCas = 0;
+
+            items.forEach(item => {
+                const tr = document.createElement('tr');
+                
+                const renderStatus = (val, type) => {
+                    if (!val || val.toUpperCase() === 'X' || val === '❌' || val === '-') {
+                        return `<span class="status-fail">❌</span>`;
+                    }
+                    
+                    const cellValueLower = val.toLowerCase();
+                    
+                    if (isSearchingDate) {
+                        if (cellValueLower.includes(searchQuery)) {
+                            if (type === 'bev') totalBev++;
+                            if (type === 'des') totalDes++;
+                            if (type === 'kak') totalKak++;
+                            if (type === 'cas') totalCas++;
+                            
+                            return `<span class="status-pass">✅ ${val}</span>`;
+                        } else {
+                            return `<span class="status-old">${val}</span>`;
+                        }
+                    }
+                    
+                    return `<span class="status-pass">✅ ${val}</span>`;
+                };
+
+                // ดึงข้อมูลแถวใหม่ item[9] มาแปะเป็นคอลัมน์สุดท้ายเรียบร้อยค่ะ
+                tr.innerHTML = `
+                    <td>${item[0] || ''}</td>
+                    <td class="center">${item[1] || ''}</td>
+                    <td>${item[2] || ''}</td>
+                    <td>${item[3] || ''}</td>
+                    <td class="center">${item[4] || ''}</td>
+                    <td class="center">${renderStatus(item[5], 'bev')}</td>
+                    <td class="center">${renderStatus(item[6], 'des')}</td>
+                    <td class="center">${renderStatus(item[7], 'kak')}</td>
+                    <td class="center">${renderStatus(item[8], 'cas')}</td>
+                    <td class="total-station-val">${item[9] || '0'}</td>
+                `;
+                tableBody.appendChild(tr);
+            });
+
+            document.getElementById('totalRowsCount').innerText = items.length;
+            
+            if (isSearchingDate) {
+                document.getElementById('countBev').innerText = totalBev;
+                document.getElementById('countDes').innerText = totalDes;
+                document.getElementById('countKak').innerText = totalKak;
+                document.getElementById('countCas').innerText = totalCas;
+                dateDetailsBox.style.display = 'grid';
+            } else {
+                dateDetailsBox.style.display = 'none';
+            }
+
+            summaryContainer.style.display = 'block';
+            resultTable.style.display = 'table';
+        }
+    </script>
 </body>
 </html>
