@@ -1,14 +1,14 @@
-<!-- 📊 [โค้ดสำเร็จรูป] การ์ดสรุปรายงานผลลัพธ์การค้นหา + สรุปผ่านรวมรายสเตชั่น -->
+<!-- 📊 [โค้ดเชื่อมต่อข้อมูลอัตโนมัติ] การ์ดสรุปรายงานผลลัพธ์การค้นหา -->
 <div class="summary-card">
     <div class="summary-header">
         <span>📊</span>
         <strong>สรุปรายงานผลลัพธ์การค้นหา</strong>
     </div>
     <div class="summary-total">
-        พบข้อมูลที่เกี่ยวข้องทั้งหมด: <span id="totalFound" class="highlight-num">0</span> รายการ
+        พบข้อมูลที่เกี่ยวข้องทั้งหมด: <span id="totalFound" class="highlight-num">Loading...</span> รายการ
     </div>
 
-    <!-- 🟢 แถบที่ 1: สรุปแยกรายสเตชั่น (ตามรูป ref เดิมของคุณพี่) -->
+    <!-- แถบที่ 1: สรุปแยกรายสเตชั่น -->
     <div class="summary-grid station-grid">
         <div class="summary-item">
             <span>🍵</span> Beverage: <strong id="cntBev">0</strong> ราย
@@ -24,7 +24,7 @@
         </div>
     </div>
 
-    <!-- 🌟 แถบที่ 2: สรุปสอบผ่านรวมรายสเตชั่น (ส่วนต่อเติมใหม่ตามสั่งค๊าา) -->
+    <!-- แถบที่ 2: สรุปสอบผ่านรวมรายสเตชั่น -->
     <div class="summary-grid pass-grid">
         <div class="summary-item pass-item">
             🏅 สอบผ่านรวม 1 สเตชั่น: <strong id="pass1">0</strong> คน
@@ -41,7 +41,6 @@
     </div>
 </div>
 
-<!-- 🎨 ตกแต่งดีไซน์การ์ดให้คลีน มินิมอล ตรงตามสไตล์ After You -->
 <style>
     .summary-card {
         background-color: #f4f6f9;
@@ -52,7 +51,6 @@
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
         margin-bottom: 25px;
     }
-
     .summary-header {
         font-size: 18px;
         margin-bottom: 6px;
@@ -61,19 +59,16 @@
         gap: 8px;
         color: #2b364b;
     }
-
     .summary-total {
         font-size: 15px;
         color: #555555;
         margin-bottom: 16px;
     }
-
     .highlight-num {
         color: #1a56db;
         font-weight: 700;
         font-size: 16px;
     }
-
     .summary-grid {
         display: grid;
         grid-template-columns: repeat(4, 1fr);
@@ -83,16 +78,8 @@
         border-radius: 10px;
         padding: 14px 20px;
     }
-
-    .station-grid {
-        margin-bottom: 12px; /* เว้นระยะห่างระหว่างแถบที่ 1 และ 2 */
-    }
-
-    .pass-grid {
-        background-color: #fafbfc;
-        border-color: #e2e8f0;
-    }
-
+    .station-grid { margin-bottom: 12px; }
+    .pass-grid { background-color: #fafbfc; border-color: #e2e8f0; }
     .summary-item {
         font-size: 15px;
         color: #4b5563;
@@ -100,64 +87,78 @@
         align-items: center;
         gap: 6px;
     }
-
-    .summary-item strong {
-        color: #111827;
-        font-weight: 700;
-    }
-
-    .pass-item {
-        color: #374151;
-        font-size: 14.5px;
-    }
-
-    /* จัดระเบียบให้ยืดหดสวยงามเมื่อเปิดบนมือถือ/แท็บเล็ต */
+    .summary-item strong { color: #111827; font-weight: 700; }
+    .pass-item { color: #374151; font-size: 14.5px; }
     @media (max-width: 900px) {
-        .summary-grid {
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-        }
+        .summary-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
     }
-
     @media (max-width: 550px) {
-        .summary-grid {
-            grid-template-columns: 1fr;
-        }
+        .summary-grid { grid-template-columns: 1fr; }
     }
 </style>
 
-<!-- ⚡️ สมองคำนวณนับจำนวนพนักงานรายคนอัตโนมัติ -->
 <script>
-    // ฟังก์ชันช่วยนับจำนวนสเตชั่นที่ผ่านของพนักงานแต่ละคนค๊าา
-    function updateStationPassSummary(searchResultsData) {
-        if (!searchResultsData || !Array.isArray(searchResultsData)) return;
+    // ⚡️ ดึงข้อมูลตรงจากชีตของคุณพี่โดยแปลงเป็นรูปแบบ CSV Data
+    const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTtZgqxG99w3oVtlk06QtWa5VxU8x8lBSzUC2C9EmNUFSdQFgkZ4DVl74k1TGmelXAVfo9wvHi9JqP8/pub?gid=0&single=true&output=csv';
 
-        // Map สำหรับรวมนับว่าพนักงาน 1 คนผ่านไปกี่สเตชั่นแล้ว
-        const empPassedMap = {};
+    fetch(csvUrl)
+        .then(response => response.text())
+        .then(csvText => {
+            const rows = csvText.split('\n').map(row => row.split(','));
+            
+            // ลบแถว Header ออก
+            const dataRows = rows.slice(1);
+            
+            let total = 0;
+            let bev = 0, des = 0, kaki = 0, cash = 0;
+            const empPassedMap = {};
 
-        searchResultsData.forEach(item => {
-            const empName = item.name || item.empId || item.employee;
-            const isPass = item.status === 'ผ่าน' || item.status === 'Pass';
+            dataRows.forEach(row => {
+                if (row.length < 2) return;
+                
+                const empName = row[0] ? row[0].trim() : ''; // สมมติ คอลัมน์ A คือชื่อพนักงาน
+                const station = row[1] ? row[1].trim() : ''; // สมมติ คอลัมน์ B คือสเตชั่น
+                const status = row[2] ? row[2].trim() : '';  // สมมติ คอลัมน์ C คือสถานะ (ผ่าน/ไม่ผ่าน)
 
-            if (empName && isPass) {
-                empPassedMap[empName] = (empPassedMap[empName] || 0) + 1;
-            }
+                total++;
+
+                if (status === 'ผ่าน' || status === 'Pass') {
+                    // นับตามสเตชั่น
+                    if (station.includes('Beverage')) bev++;
+                    if (station.includes('Dessert')) des++;
+                    if (station.includes('Kakigori')) kaki++;
+                    if (station.includes('Cashier')) cash++;
+
+                    // นับจำนวนสเตชั่นที่ผ่านของพนักงานแต่ละคน
+                    if (empName) {
+                        empPassedMap[empName] = (empPassedMap[empName] || 0) + 1;
+                    }
+                }
+            });
+
+            // คำนวณจำนวนผ่านรวม 1-4 สเตชั่น
+            let p1 = 0, p2 = 0, p3 = 0, p4 = 0;
+            Object.values(empPassedMap).forEach(count => {
+                if (count === 1) p1++;
+                else if (count === 2) p2++;
+                else if (count === 3) p3++;
+                else if (count >= 4) p4++;
+            });
+
+            // แสดงผลลงการ์ด
+            document.getElementById('totalFound').textContent = total;
+            document.getElementById('cntBev').textContent = bev;
+            document.getElementById('cntDes').textContent = des;
+            document.getElementById('cntKaki').textContent = kaki;
+            document.getElementById('cntCash').textContent = cash;
+
+            document.getElementById('pass1').textContent = p1;
+            document.getElementById('pass2').textContent = p2;
+            document.getElementById('pass3').textContent = p3;
+            document.getElementById('pass4').textContent = p4;
+        })
+        .catch(error => {
+            console.error('Error fetching data:', error);
+            document.getElementById('totalFound').textContent = 'Error';
         });
-
-        // ตัวแปรนับจำนวนคนผ่าน 1, 2, 3, 4 สเตชั่น
-        let p1 = 0, p2 = 0, p3 = 0, p4 = 0;
-
-        Object.values(empPassedMap).forEach(count => {
-            if (count === 1) p1++;
-            else if (count === 2) p2++;
-            else if (count === 3) p3++;
-            else if (count >= 4) p4++;
-        });
-
-        // ส่งตัวเลขที่คำนวณได้ไปแสดงผลบนการ์ดค๊าา
-        if(document.getElementById('pass1')) document.getElementById('pass1').textContent = p1;
-        if(document.getElementById('pass2')) document.getElementById('pass2').textContent = p2;
-        if(document.getElementById('pass3')) document.getElementById('pass3').textContent = p3;
-        if(document.getElementById('pass4')) document.getElementById('pass4').textContent = p4;
-    }
 </script>
