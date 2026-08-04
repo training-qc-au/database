@@ -1,164 +1,262 @@
-<!-- 📊 [โค้ดเชื่อมต่อข้อมูลอัตโนมัติ] การ์ดสรุปรายงานผลลัพธ์การค้นหา -->
-<div class="summary-card">
-    <div class="summary-header">
-        <span>📊</span>
-        <strong>สรุปรายงานผลลัพธ์การค้นหา</strong>
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>สรุปรายงานผลลัพธ์การค้นหา</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Anuphan:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Anuphan', sans-serif;
+        }
+
+        body {
+            background-color: #ffffff;
+            padding: 20px;
+            color: #333333;
+        }
+
+        /* 📊 การ์ดสรุปรายงานผลลัพธ์การค้นหาด้านบน */
+        .summary-card {
+            background-color: #f4f6f9;
+            border-radius: 12px;
+            padding: 20px 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            margin-bottom: 25px;
+        }
+
+        .summary-header {
+            font-size: 18px;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #2b364b;
+        }
+
+        .summary-total {
+            font-size: 15px;
+            color: #555555;
+            margin-bottom: 16px;
+        }
+
+        .highlight-num {
+            color: #1a56db;
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            background-color: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 14px 20px;
+        }
+
+        .station-grid {
+            margin-bottom: 12px;
+        }
+
+        .pass-grid {
+            background-color: #fafbfc;
+            border-color: #e2e8f0;
+        }
+
+        .summary-item {
+            font-size: 15px;
+            color: #4b5563;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .summary-item strong {
+            color: #111827;
+            font-weight: 700;
+        }
+
+        .pass-item {
+            color: #374151;
+            font-size: 14.5px;
+        }
+
+        /* 📑 ตารางข้อมูลพนักงาน (ปรับแต่งตามรูป ref เป๊ะๆ) */
+        .table-container {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .data-table th, .data-table td {
+            border: 1px solid #d1d5db;
+            padding: 8px 10px;
+            vertical-align: middle;
+        }
+
+        .data-table th {
+            background-color: #f9fafb;
+            font-weight: 700;
+            color: #374151;
+        }
+
+        .text-left {
+            text-align: left !important;
+        }
+
+        /* สไตล์เครื่องหมาย ผ่าน / ไม่ผ่าน */
+        .pass-tag {
+            color: #15803d;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        .fail-tag {
+            color: #dc2626;
+            font-weight: 700;
+            font-size: 15px;
+        }
+
+        /* ตกแต่งคอลัมน์สรุปสอบผ่านรวมด้านขวาสุด */
+        .total-pass-col {
+            font-weight: 700;
+            color: #1a56db;
+            background-color: #f8fafc;
+        }
+
+        @media (max-width: 900px) {
+            .summary-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 📊 การ์ดสรุปด้านบน (มี 2 แถบตามสั่งค๊าา) -->
+    <div class="summary-card">
+        <div class="summary-header">
+            <span>📊</span>
+            <strong>สรุปรายงานผลลัพธ์การค้นหา</strong>
+        </div>
+        <div class="summary-total">
+            พบข้อมูลที่เกี่ยวข้องทั้งหมด: <span class="highlight-num">29</span> รายการ
+        </div>
+
+        <!-- แถบ 1: สรุปแยกสเตชั่น -->
+        <div class="summary-grid station-grid">
+            <div class="summary-item">🍵 Beverage: <strong>13</strong> ราย</div>
+            <div class="summary-item">🥞 Dessert: <strong>5</strong> ราย</div>
+            <div class="summary-item">🍧 Kakigori: <strong>8</strong> ราย</div>
+            <div class="summary-item">💰 Cashier: <strong>5</strong> ราย</div>
+        </div>
+
+        <!-- แถบ 2: สรุปผ่านรวมรายสเตชั่น (เพิ่มใหม่ต่อท้าย) -->
+        <div class="summary-grid pass-grid">
+            <div class="summary-item pass-item">🏅 สอบผ่านรวม 1 สเตชั่น: <strong>3</strong> คน</div>
+            <div class="summary-item pass-item">🏅 สอบผ่านรวม 2 สเตชั่น: <strong>9</strong> คน</div>
+            <div class="summary-item pass-item">🏅 สอบผ่านรวม 3 สเตชั่น: <strong>3</strong> คน</div>
+            <div class="summary-item pass-item">⭐ สอบผ่านรวม 4 สเตชั่น: <strong>1</strong> คน</div>
+        </div>
     </div>
-    <div class="summary-total">
-        พบข้อมูลที่เกี่ยวข้องทั้งหมด: <span id="totalFound" class="highlight-num">Loading...</span> รายการ
+
+    <!-- 📑 ตารางข้อมูลพนักงาน (คงไว้ครบทุกคอลัมน์ + เพิ่มคอลัมน์ขวาสุดเรียบร้อยค๊าา) -->
+    <div class="table-container">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>สถานะพนักงาน</th>
+                    <th>ID</th>
+                    <th>ชื่อ-สกุล</th>
+                    <th>ชื่อเล่น</th>
+                    <th>สาขา</th>
+                    <th>Beverage</th>
+                    <th>Dessert</th>
+                    <th>Kakigori</th>
+                    <th>Cashier</th>
+                    <!-- 🌟 คอลัมน์ใหม่ขวาสุดที่คุณพี่ต้องการค๊าา -->
+                    <th>สอบผ่านรวม<br>(Station)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>-</td>
+                    <td>21310</td>
+                    <td class="text-left">สุภาพร พลทัย</td>
+                    <td>ก้อย</td>
+                    <td>ACP</td>
+                    <td><span class="pass-tag">✅ JAN-69</span></td>
+                    <td><span class="fail-tag">❌</span></td>
+                    <td><span class="fail-tag">❌</span></td>
+                    <td><span class="fail-tag">❌</span></td>
+                    <td class="total-pass-col">1</td>
+                </tr>
+                <tr>
+                    <td>-</td>
+                    <td>22338</td>
+                    <td class="text-left">ปรมาภรณ์ อัศวเดช</td>
+                    <td>ปาน</td>
+                    <td>AUC</td>
+                    <td><span class="pass-tag">✅ JAN-69</span></td>
+                    <td><span class="fail-tag">❌</span></td>
+                    <td><span class="fail-tag">❌</span></td>
+                    <td><span class="fail-tag">❌</span></td>
+                    <td class="total-pass-col">1</td>
+                </tr>
+                <tr>
+                    <td>-</td>
+                    <td>18891</td>
+                    <td class="text-left">Kalayar Zin Zin Moe</td>
+                    <td>ZinZin</td>
+                    <td>APN</td>
+                    <td><span class="pass-tag">✅ JAN-69</span></td>
+                    <td><span class="fail-tag">❌</span></td>
+                    <td><span class="pass-tag">✅ JAN-69</span></td>
+                    <td><span class="fail-tag">❌</span></td>
+                    <td class="total-pass-col">2</td>
+                </tr>
+                <tr>
+                    <td>-</td>
+                    <td>21791</td>
+                    <td class="text-left">เยาวเรศ แสงอุไร</td>
+                    <td>ผักบุ้ง</td>
+                    <td>AEP</td>
+                    <td><span class="pass-tag">✅ JAN-69</span></td>
+                    <td><span class="pass-tag">✅ NOV-68</span></td>
+                    <td><span class="pass-tag">✅ MAY-69</span></td>
+                    <td><span class="fail-tag">❌</span></td>
+                    <td class="total-pass-col">3</td>
+                </tr>
+                <tr>
+                    <td>-</td>
+                    <td>18231</td>
+                    <td class="text-left">อนุชา ทององค์</td>
+                    <td>เบนซ์</td>
+                    <td>ABH</td>
+                    <td><span class="pass-tag">✅ JAN-69</span></td>
+                    <td><span class="pass-tag">✅ JUL-68</span></td>
+                    <td><span class="pass-tag">✅ MAR-68</span></td>
+                    <td><span class="pass-tag">✅ MAY-69</span></td>
+                    <td class="total-pass-col">4</td>
+                </tr>
+            </tbody>
+        </table>
     </div>
 
-    <!-- แถบที่ 1: สรุปแยกรายสเตชั่น -->
-    <div class="summary-grid station-grid">
-        <div class="summary-item">
-            <span>🍵</span> Beverage: <strong id="cntBev">0</strong> ราย
-        </div>
-        <div class="summary-item">
-            <span>🥞</span> Dessert: <strong id="cntDes">0</strong> ราย
-        </div>
-        <div class="summary-item">
-            <span>🍧</span> Kakigori: <strong id="cntKaki">0</strong> ราย
-        </div>
-        <div class="summary-item">
-            <span>💰</span> Cashier: <strong id="cntCash">0</strong> ราย
-        </div>
-    </div>
-
-    <!-- แถบที่ 2: สรุปสอบผ่านรวมรายสเตชั่น -->
-    <div class="summary-grid pass-grid">
-        <div class="summary-item pass-item">
-            🏅 สอบผ่านรวม 1 สเตชั่น: <strong id="pass1">0</strong> คน
-        </div>
-        <div class="summary-item pass-item">
-            🏅 สอบผ่านรวม 2 สเตชั่น: <strong id="pass2">0</strong> คน
-        </div>
-        <div class="summary-item pass-item">
-            🏅 สอบผ่านรวม 3 สเตชั่น: <strong id="pass3">0</strong> คน
-        </div>
-        <div class="summary-item pass-item">
-            ⭐ สอบผ่านรวม 4 สเตชั่น: <strong id="pass4">0</strong> คน
-        </div>
-    </div>
-</div>
-
-<style>
-    .summary-card {
-        background-color: #f4f6f9;
-        border-radius: 12px;
-        padding: 20px 24px;
-        font-family: 'Anuphan', 'Plus Jakarta Sans', sans-serif;
-        color: #333333;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-        margin-bottom: 25px;
-    }
-    .summary-header {
-        font-size: 18px;
-        margin-bottom: 6px;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        color: #2b364b;
-    }
-    .summary-total {
-        font-size: 15px;
-        color: #555555;
-        margin-bottom: 16px;
-    }
-    .highlight-num {
-        color: #1a56db;
-        font-weight: 700;
-        font-size: 16px;
-    }
-    .summary-grid {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 15px;
-        background-color: #ffffff;
-        border: 1px solid #e5e7eb;
-        border-radius: 10px;
-        padding: 14px 20px;
-    }
-    .station-grid { margin-bottom: 12px; }
-    .pass-grid { background-color: #fafbfc; border-color: #e2e8f0; }
-    .summary-item {
-        font-size: 15px;
-        color: #4b5563;
-        display: flex;
-        align-items: center;
-        gap: 6px;
-    }
-    .summary-item strong { color: #111827; font-weight: 700; }
-    .pass-item { color: #374151; font-size: 14.5px; }
-    @media (max-width: 900px) {
-        .summary-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
-    }
-    @media (max-width: 550px) {
-        .summary-grid { grid-template-columns: 1fr; }
-    }
-</style>
-
-<script>
-    // ⚡️ ดึงข้อมูลตรงจากชีตของคุณพี่โดยแปลงเป็นรูปแบบ CSV Data
-    const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTtZgqxG99w3oVtlk06QtWa5VxU8x8lBSzUC2C9EmNUFSdQFgkZ4DVl74k1TGmelXAVfo9wvHi9JqP8/pub?gid=0&single=true&output=csv';
-
-    fetch(csvUrl)
-        .then(response => response.text())
-        .then(csvText => {
-            const rows = csvText.split('\n').map(row => row.split(','));
-            
-            // ลบแถว Header ออก
-            const dataRows = rows.slice(1);
-            
-            let total = 0;
-            let bev = 0, des = 0, kaki = 0, cash = 0;
-            const empPassedMap = {};
-
-            dataRows.forEach(row => {
-                if (row.length < 2) return;
-                
-                const empName = row[0] ? row[0].trim() : ''; // สมมติ คอลัมน์ A คือชื่อพนักงาน
-                const station = row[1] ? row[1].trim() : ''; // สมมติ คอลัมน์ B คือสเตชั่น
-                const status = row[2] ? row[2].trim() : '';  // สมมติ คอลัมน์ C คือสถานะ (ผ่าน/ไม่ผ่าน)
-
-                total++;
-
-                if (status === 'ผ่าน' || status === 'Pass') {
-                    // นับตามสเตชั่น
-                    if (station.includes('Beverage')) bev++;
-                    if (station.includes('Dessert')) des++;
-                    if (station.includes('Kakigori')) kaki++;
-                    if (station.includes('Cashier')) cash++;
-
-                    // นับจำนวนสเตชั่นที่ผ่านของพนักงานแต่ละคน
-                    if (empName) {
-                        empPassedMap[empName] = (empPassedMap[empName] || 0) + 1;
-                    }
-                }
-            });
-
-            // คำนวณจำนวนผ่านรวม 1-4 สเตชั่น
-            let p1 = 0, p2 = 0, p3 = 0, p4 = 0;
-            Object.values(empPassedMap).forEach(count => {
-                if (count === 1) p1++;
-                else if (count === 2) p2++;
-                else if (count === 3) p3++;
-                else if (count >= 4) p4++;
-            });
-
-            // แสดงผลลงการ์ด
-            document.getElementById('totalFound').textContent = total;
-            document.getElementById('cntBev').textContent = bev;
-            document.getElementById('cntDes').textContent = des;
-            document.getElementById('cntKaki').textContent = kaki;
-            document.getElementById('cntCash').textContent = cash;
-
-            document.getElementById('pass1').textContent = p1;
-            document.getElementById('pass2').textContent = p2;
-            document.getElementById('pass3').textContent = p3;
-            document.getElementById('pass4').textContent = p4;
-        })
-        .catch(error => {
-            console.error('Error fetching data:', error);
-            document.getElementById('totalFound').textContent = 'Error';
-        });
-</script>
+</body>
+</html>
